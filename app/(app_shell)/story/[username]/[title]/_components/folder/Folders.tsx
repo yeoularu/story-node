@@ -91,6 +91,8 @@ export default function Folders() {
     folderHierarchyMap.set(f.id, reversedPath.toReversed());
   });
 
+  const isOwner = session?.user && session.user.id === story.owner_id;
+
   const content = (
     <div className="flex h-full flex-col">
       <Breadcrumb>
@@ -107,7 +109,7 @@ export default function Folders() {
                   <PopoverContent>
                     <div className="flex flex-col items-center justify-center gap-2">
                       {f.description}
-                      {session?.user?.id === story.owner_id && (
+                      {isOwner && (
                         <UpsertFolderDialog story={story} folder={f} />
                       )}
                     </div>
@@ -151,9 +153,11 @@ export default function Folders() {
         className="flex-1 rounded-lg border"
       >
         <ResizablePanel defaultSize={33} minSize={15.5} className="relative">
-          <div className="absolute right-0 top-0 z-30 m-1 bg-background">
-            <UpsertFolderDialog story={story} />
-          </div>
+          {isOwner && (
+            <div className="absolute right-0 top-0 z-30 m-1 bg-background">
+              <UpsertFolderDialog story={story} />
+            </div>
+          )}
           <div className="absolute bottom-0 left-0 right-0 top-1 overflow-auto overflow-x-hidden">
             <FolderDetailTree
               folders={story.folders}
@@ -178,9 +182,12 @@ export default function Folders() {
   return (
     <>
       <div className="relative pt-1">
-        <div className="absolute right-0 top-0 z-30 m-1">
-          <UpsertFolderDialog story={story} />
-        </div>
+        {isOwner && (
+          <div className="absolute right-0 top-0 z-30 m-1">
+            <UpsertFolderDialog story={story} />
+          </div>
+        )}
+
         <div className="pr-2">
           <FolderDetailTree
             folders={story.folders}
