@@ -55,7 +55,7 @@ const FolderDetailTree = ({
                     </span>
                   </Button>
                 </summary>
-                <div className="relative ml-1 before:absolute before:bottom-1 before:left-0 before:top-0 before:w-px before:bg-muted-foreground">
+                <div className="relative ml-1 before:absolute before:bottom-1 before:left-0 before:top-0 before:w-px before:bg-muted-foreground before:will-change-transform">
                   <FolderDetailTree
                     folders={folders}
                     selectedFolderId={selectedFolderId}
