@@ -2,7 +2,7 @@
 
 import { User } from "@supabase/supabase-js";
 import { useTheme } from "next-themes";
-import { useIsMounted, useLocalStorage } from "usehooks-ts";
+import { useIsClient, useLocalStorage } from "usehooks-ts";
 import {
   fontSizeVariants,
   fontVariants,
@@ -17,19 +17,19 @@ export default function ViewerSettingsProvider({
   currentUser?: User;
 }>) {
   const { theme } = useTheme();
-  const isMounted = useIsMounted();
 
+  const isClient = useIsClient();
   const [{ font, fontSize, viewerTheme }] = useLocalStorage(
-    "viewer-settings:" + currentUser?.id,
+    "viewer-settings:" + (currentUser?.id ?? "unauthenticated"),
     { font: "default", fontSize: "16", viewerTheme: theme ?? "system" },
   );
 
   return (
     <div
       className={`transition-opacity
-      ${isMounted() ? "opacity-100" : "opacity-0"}
+      ${isClient ? "opacity-100" : "opacity-0"}
         ${
-          isMounted() &&
+          isClient &&
           [
             fontVariants[font],
             fontSizeVariants[fontSize],

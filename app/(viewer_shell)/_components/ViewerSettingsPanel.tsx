@@ -112,7 +112,7 @@ function SettingPanel({
   const { theme } = useTheme();
 
   const [value, setValue, removeValue] = useLocalStorage(
-    "viewer-settings:" + currentUser?.id,
+    "viewer-settings:" + (currentUser?.id ?? "unauthenticated"),
     { font: "default", fontSize: "16", viewerTheme: theme ?? "system" },
   );
 
