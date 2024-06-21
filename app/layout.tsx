@@ -1,5 +1,7 @@
 import { GeistSans } from "geist/font/sans";
+import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
+import Providers from "./providers";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -13,15 +15,16 @@ export const metadata = {
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
-    <html lang="en" className={GeistSans.className}>
-      <body className="bg-background text-foreground">
-        <main className="min-h-screen flex flex-col items-center">
-          {children}
-        </main>
+    <html lang="en" className={GeistSans.className} suppressHydrationWarning>
+      <body className="h-auto min-h-dvh">
+        <Providers>
+          <NextTopLoader color="#16a249" showSpinner={false} />
+          <div>{children}</div>
+        </Providers>
       </body>
     </html>
   );

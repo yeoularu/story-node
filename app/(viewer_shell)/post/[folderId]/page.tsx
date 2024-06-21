@@ -1,0 +1,44 @@
+import { createClient } from "@/lib/supabase/server";
+import { getPostByTitle, getPostsByFolder, postKeys } from "@/queries/post";
+import {
+  HydrationBoundary,
+  QueryClient,
+  dehydrate,
+} from "@tanstack/react-query";
+import PostViewer from "./_components/PostsViewer";
+
+export default async function PostPage({
+  params,
+  searchParams,
+}: Readonly<{
+  params: { folderId: string };
+  searchParams: { title: string };
+}>) {
+  const supabase = createClient();
+  const queryClient = new QueryClient();
+
+  const postsByFolderPromise = await queryClient.prefetchQuery({
+    queryKey: postKeys.folder(params.folderId),
+    queryFn: () => getPostsByFolder(supabase, params.folderId),
+  });
+
+  const infinitePostsByFolderPromise = await queryClient.prefetchInfiniteQuery({
+    queryKey: postKeys.infiniteByFolder(params.folderId),
+    queryFn: () =>
+      getPostByTitle(supabase, params.folderId, searchParams.title),
+    initialPageParam: ["initialTitle", searchParams.title],
+  });
+
+  await Promise.all([postsByFolderPromise, infinitePostsByFolderPromise]);
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <div className="container flex max-w-screen-xl flex-col">
+        <PostViewer
+          folderId={params.folderId}
+          initialTitle={searchParams.title}
+        />
+      </div>
+    </HydrationBoundary>
+  );
+}
