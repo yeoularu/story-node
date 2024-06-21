@@ -1,5 +1,6 @@
 "use client";
 
+import { PostLinks } from "@/app/(app_shell)/_components/post/PostLinks";
 import {
   Popover,
   PopoverContent,
@@ -13,6 +14,8 @@ export default function SinglePost({
   post,
 }: Readonly<{
   post: Tables<"posts"> & {
+    profiles: Tables<"profiles">;
+    stories: Tables<"stories">;
     post_links_from: {
       to_post_id: string;
     }[];
@@ -46,6 +49,7 @@ export default function SinglePost({
             <p className="whitespace-pre-wrap break-words text-center">
               {post.title}
             </p>
+            <PostLinks post={post} />
           </PopoverContent>
         </Popover>
       </div>

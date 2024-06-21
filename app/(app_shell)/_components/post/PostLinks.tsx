@@ -148,7 +148,7 @@ export function PostLinks({
   const postLinks = [
     ...post.post_links_from.map(({ to_post_id }) => to_post_id),
     ...post.post_links_to.map(({ from_post_id }) => from_post_id),
-  ];
+  ].filter((id) => postPathsMap.has(id));
 
   return (
     <>
