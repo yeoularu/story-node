@@ -1,6 +1,6 @@
 "use client";
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Alert, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { Tables } from "@/lib/types/supabase";
@@ -13,7 +13,6 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 import { File, FilePen, Folder, X } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { l } from "nuqs/dist/serializer-_rJbONuT";
 import { useEffect, useRef, useState } from "react";
 import { useWindowSize } from "usehooks-ts";
 
