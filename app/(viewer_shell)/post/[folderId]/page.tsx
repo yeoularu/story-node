@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { folderKeys, getFolder } from "@/queries/folder";
 import { getPostByTitle, getPostsByFolder, postKeys } from "@/queries/post";
 import {
   HydrationBoundary,
@@ -29,7 +30,16 @@ export default async function PostPage({
     initialPageParam: ["initialTitle", searchParams.title],
   });
 
-  await Promise.all([postsByFolderPromise, infinitePostsByFolderPromise]);
+  const folderPromise = await queryClient.prefetchQuery({
+    queryKey: folderKeys.id(params.folderId),
+    queryFn: () => getFolder(supabase, params.folderId),
+  });
+
+  await Promise.all([
+    postsByFolderPromise,
+    infinitePostsByFolderPromise,
+    folderPromise,
+  ]);
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
