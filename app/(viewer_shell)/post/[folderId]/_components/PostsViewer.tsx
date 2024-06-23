@@ -2,13 +2,15 @@
 
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
+import { folderKeys, getFolder } from "@/queries/folder";
 import {
   getNextPostInFolder,
   getPostByTitle,
   getPreviousPostInFolder,
   postKeys,
 } from "@/queries/post";
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import Link from "next/link";
 import { useEffect } from "react";
 import InfiniteQueryTrigger from "./InfiniteQueryTrigger";
 import SinglePost from "./SinglePost";
@@ -22,6 +24,10 @@ export default function PostViewer({
 }>) {
   const supabase = createClient();
 
+  const { data: folder } = useQuery({
+    queryKey: folderKeys.id(folderId),
+    queryFn: () => getFolder(supabase, folderId),
+  });
   const {
     data,
     fetchNextPage,
@@ -57,15 +63,29 @@ export default function PostViewer({
 
   return (
     <div className="container flex max-w-screen-xl flex-col transition-transform ">
-      {hasPreviousPage && (
+      <div className="mb-8 flex flex-col items-center justify-between gap-2 sm:flex-row">
         <Button
-          className="mb-8 ml-auto w-fit"
+          className="w-full sm:w-fit"
           size="sm"
-          onClick={() => fetchPreviousPage()}
+          variant="secondary"
+          asChild
         >
-          Load previous post
+          <Link
+            href={`/story/${folder?.profiles?.username}/${folder?.stories?.title}`}
+          >
+            Go to story page
+          </Link>
         </Button>
-      )}
+        {hasPreviousPage && (
+          <Button
+            className="w-full sm:w-fit"
+            size="sm"
+            onClick={() => fetchPreviousPage()}
+          >
+            Load previous post
+          </Button>
+        )}
+      </div>
 
       {data?.pages.map((post) => {
         if (post) return <SinglePost key={post.id} post={post} />;

@@ -33,7 +33,7 @@ export default function SinglePost({
   });
 
   return (
-    <div id={post.id} ref={ref} className="mb-24">
+    <div id={post.title ?? undefined} ref={ref} className="mb-24">
       <div className="sticky inset-x-0 top-1 z-40 mx-auto flex w-[calc(100%-3rem)] items-center justify-center text-center text-sm opacity-90">
         <Popover>
           <PopoverTrigger asChild>
