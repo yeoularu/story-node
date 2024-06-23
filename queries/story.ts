@@ -22,7 +22,9 @@ export const getStory = async (
 ) =>
   await supabase
     .from("stories")
-    .select("*, profiles!stories_owner_id_fkey(*), stars(count), folders(*)")
+    .select(
+      "*, profiles!stories_owner_id_fkey(*), stars(count), folders(*), post_links(*)",
+    )
     .eq("profiles.username", username)
     .eq("title", title)
     .single()

@@ -6,6 +6,7 @@ import { useQueryState } from "nuqs";
 import { useMediaQuery } from "usehooks-ts";
 import Folders from "./folder/Folders";
 import Posts from "./post/Posts";
+import FolderTreeGraph from "./tree/FolderTreeGraph";
 
 export default function StoryTab() {
   const [tab, setTab] = useQueryState("tab", { history: "push" });
@@ -41,11 +42,17 @@ export default function StoryTab() {
       <TabsContent value="posts">
         <Posts />
       </TabsContent>
-      <TabsContent value="folders" className="flex flex-1 flex-col">
+      <TabsContent
+        value="folders"
+        className={`flex flex-1 flex-col ${tab !== "folders" && "hidden"}`}
+      >
         <Folders />
       </TabsContent>
-      <TabsContent value="tree">
-        <span>tree</span>
+      <TabsContent
+        value="tree"
+        className={`flex flex-1 flex-col ${tab !== "tree" && "hidden"}`}
+      >
+        <FolderTreeGraph />
       </TabsContent>
       <TabsContent value="graph">graph</TabsContent>
     </Tabs>
