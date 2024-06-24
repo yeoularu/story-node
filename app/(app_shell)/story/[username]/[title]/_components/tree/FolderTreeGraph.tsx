@@ -48,7 +48,6 @@ export default function FolderTreeGraph() {
   const { data: drafts } = useQuery({
     queryKey: postKeys.drafts(),
     queryFn: () => getDrafts(supabase, story?.owner_id!),
-    enabled: !!story,
   });
 
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -96,6 +95,7 @@ export default function FolderTreeGraph() {
 
   useEffect(() => {
     if (!story || !posts) return;
+    if (!drafts) return;
 
     const data = drafts
       ? transformData(story.folders, [...posts, ...drafts])
@@ -106,7 +106,7 @@ export default function FolderTreeGraph() {
     const nodes = root.descendants();
 
     const svgWidth = width > 1400 ? 1400 : width;
-    const svgHeight = height - 300;
+    const svgHeight = height - 250;
 
     const simulation = d3
       .forceSimulation(nodes)
@@ -119,7 +119,8 @@ export default function FolderTreeGraph() {
           >(links)
           .id((d) => d.id!),
       )
-      .force("charge", d3.forceManyBody().strength(-150))
+      .force("charge", d3.forceManyBody().strength(-300))
+
       .force("x", d3.forceX())
       .force("y", d3.forceY());
 
@@ -130,30 +131,28 @@ export default function FolderTreeGraph() {
       .attr("viewBox", [-svgWidth / 2, -svgHeight / 2, svgWidth, svgHeight])
       .attr("style", "max-width: 100%; height: auto;");
 
-    const link = svg
+    const g = svg.append("g");
+
+    const link = g
       .append("g")
-      .attr("stroke", "#999")
+      .attr("class", "stroke-muted-foreground")
       .attr("stroke-opacity", 0.6)
       .selectAll("line")
       .data(links)
       .join("line");
 
-    const nodeGroup = svg
-      .append("g")
-      .selectAll("g")
-      .data(nodes)
-      .join("g")
-      .attr("cursor", "pointer");
+    const nodeGroup = g.append("g").selectAll("g").data(nodes).join("g");
 
     const node = nodeGroup
       .append("circle")
       .attr("stroke-width", (d) => (d.data.type === "folder" ? 2 : 0))
-      .attr("r", (d) => (d.data.type === "folder" ? 7 : 6))
+      .attr("r", (d) => (d.data.type === "folder" ? 8 : 7))
       .attr("class", (d) =>
         d.data.type === "folder"
           ? "fill-background stroke-foreground"
           : "fill-foreground stroke-none",
-      );
+      )
+      .attr("cursor", "pointer");
 
     nodeGroup
       .append("text")
@@ -161,7 +160,8 @@ export default function FolderTreeGraph() {
       .attr("text-anchor", "middle")
       .text((d) => d.data.name)
       .attr("font-size", "11px")
-      .attr("fill", "currentColor");
+      .attr("fill", "currentColor")
+      .style("pointer-events", "none");
 
     node.append("title").text((d) => d.data.name);
 
@@ -175,37 +175,50 @@ export default function FolderTreeGraph() {
       nodeGroup.attr("transform", (d) => `translate(${d.x!},${d.y!})`);
     });
 
-    function dragstarted(
-      event: d3.D3DragEvent<SVGGElement, TreeNode, TreeNode>,
+    function drag(
+      simulation: d3.Simulation<d3.HierarchyNode<TreeNode>, undefined>,
     ) {
-      if (!event.active) simulation.alphaTarget(0.3).restart();
-      event.subject.fx = event.subject.x;
-      event.subject.fy = event.subject.y;
+      function dragstarted(
+        event: d3.D3DragEvent<SVGGElement, TreeNode, TreeNode>,
+      ) {
+        if (!event.active) simulation.alphaTarget(0.3).restart();
+        event.subject.fx = event.subject.x;
+        event.subject.fy = event.subject.y;
+      }
+
+      function dragged(event: d3.D3DragEvent<SVGGElement, TreeNode, TreeNode>) {
+        event.subject.fx = event.x;
+        event.subject.fy = event.y;
+      }
+
+      function dragended(
+        event: d3.D3DragEvent<SVGGElement, TreeNode, TreeNode>,
+      ) {
+        if (!event.active) simulation.alphaTarget(0);
+        event.subject.fx = null;
+        event.subject.fy = null;
+      }
+
+      return d3
+        .drag()
+        .on("start", dragstarted)
+        .on("drag", dragged)
+        .on("end", dragended);
     }
 
-    function dragged(event: d3.D3DragEvent<SVGGElement, TreeNode, TreeNode>) {
-      event.subject.fx = event.x;
-      event.subject.fy = event.y;
-    }
+    // @ts-ignore
+    nodeGroup.call(drag(simulation)).on("click", (_, d) => {
+      setSelectedNodeId(d.data.id);
+    });
 
-    function dragended(event: d3.D3DragEvent<SVGGElement, TreeNode, TreeNode>) {
-      if (!event.active) simulation.alphaTarget(0);
-      event.subject.fx = null;
-      event.subject.fy = null;
-    }
-
-    nodeGroup
-      .call(
-        // @ts-ignore
-        d3
-          .drag()
-          .on("start", dragstarted)
-          .on("drag", dragged)
-          .on("end", dragended),
-      )
-      .on("click", (_, d) => {
-        setSelectedNodeId(d.data.id);
+    const zoom = d3
+      .zoom()
+      .scaleExtent([0.5, 4])
+      .on("zoom", ({ transform }) => {
+        g.attr("transform", transform);
       });
+    // @ts-ignore
+    svg.call(zoom);
 
     return () => {
       svg.selectAll("*").remove();
@@ -219,13 +232,14 @@ export default function FolderTreeGraph() {
   useEffect(() => {
     const svg = d3.select(svgRef.current);
     const node = svg.selectAll("g").select("circle");
+    const link = svg.selectAll("line");
 
     node.attr("class", (d: any) => {
       let classname: string;
       if (d.data.id === selectedNodeId) {
         classname =
           d.data.type === "folder"
-            ? "fill-primary stroke-primary"
+            ? "fill-primary stroke-foreground/80"
             : "fill-primary stroke-background";
       } else {
         classname =
@@ -234,6 +248,13 @@ export default function FolderTreeGraph() {
             : "fill-foreground stroke-background";
       }
       return classname;
+    });
+
+    link.attr("class", (link: any) => {
+      return link.source.data.id === selectedNodeId ||
+        link.target.data.id === selectedNodeId
+        ? "stroke-primary"
+        : "stroke-muted-foreground";
     });
   }, [selectedNodeId]);
 
@@ -244,7 +265,9 @@ export default function FolderTreeGraph() {
   );
   let selectedPost: Tables<"posts"> | undefined;
   if (!selectedFolder) {
-    selectedPost = posts.find((post) => post.id === selectedNodeId);
+    selectedPost =
+      posts.find((post) => post.id === selectedNodeId) ??
+      drafts?.find((post) => post.id === selectedNodeId);
   }
   const getIcon = () => {
     if (selectedFolder) return <Folder className="h-4 w-4" />;
@@ -288,7 +311,7 @@ export default function FolderTreeGraph() {
           </Button>
 
           {getIcon()}
-          <AlertTitle className="mb-2 overflow-hidden">{getTitle()}</AlertTitle>
+          <AlertTitle className="mb-4 overflow-hidden">{getTitle()}</AlertTitle>
 
           <Button variant="outline" className="w-full" size="sm" asChild>
             <Link href={getLink()}>{getButtonText()}</Link>
