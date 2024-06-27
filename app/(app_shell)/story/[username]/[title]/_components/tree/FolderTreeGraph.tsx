@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import * as d3 from "d3";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
-import { File, FilePen, Folder, X } from "lucide-react";
+import { File, FilePen, Folder, Loader2, X } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -45,7 +45,7 @@ export default function FolderTreeGraph() {
     queryFn: () => getPostsByStory(supabase, username, title),
   });
 
-  const { data: drafts } = useQuery({
+  const { data: drafts, isPending } = useQuery({
     queryKey: postKeys.drafts(),
     queryFn: () => getDrafts(supabase, story?.owner_id!),
   });
@@ -258,6 +258,7 @@ export default function FolderTreeGraph() {
     });
   }, [selectedNodeId]);
 
+  if (isPending) return <Loader2 className="mx-auto h-8 w-8 animate-spin" />;
   if (!story || !posts) return null;
 
   const selectedFolder = story.folders.find(
