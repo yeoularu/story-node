@@ -31,7 +31,7 @@ export function PostLinks({
   post,
   isOwner = false,
 }: Readonly<{
-  post: Tables<"posts"> & {
+  post: Omit<Tables<"posts">, "content"> & {
     profiles: Tables<"profiles">;
     stories: Tables<"stories">;
     post_links_from: {

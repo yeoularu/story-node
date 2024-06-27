@@ -4,7 +4,7 @@ import { Tables } from "@/lib/types/supabase";
 import PostCard from "./PostCard";
 import PostDropdownMenu from "./PostDropdownMenu";
 
-type PostWithLinks = Tables<"posts"> & {
+type PostWithLinks = Omit<Tables<"posts">, "content"> & {
   profiles: Tables<"profiles">;
   stories: Tables<"stories">;
   post_links_from: {

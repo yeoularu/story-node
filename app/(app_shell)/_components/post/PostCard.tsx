@@ -16,7 +16,7 @@ export default function PostCard({
   post,
   content,
 }: Readonly<{
-  post: Tables<"posts"> & {
+  post: Omit<Tables<"posts">, "content"> & {
     post_links_from: {
       to_post_id: string;
     }[];

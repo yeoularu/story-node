@@ -50,7 +50,14 @@ export const getPostsByStory = async (
     .from("posts")
     .select(
       `
-      *,
+      id,
+      title,
+      folder_id,
+      inserted_at,
+      owner_id,
+      status,
+      story_id,
+      updated_at,
       post_links_from: post_links!post_links_from_post_fkey(to_post_id),
       post_links_to: post_links!post_links_to_post_fkey(from_post_id),
       profiles!inner(*), 
@@ -69,7 +76,16 @@ export const getPostsByFolder = async (
 ) =>
   await supabase
     .from("posts")
-    .select("id, title")
+    .select(
+      `id,
+      title,
+      folder_id,
+      inserted_at,
+      owner_id,
+      status,
+      story_id,
+      updated_at`,
+    )
     .eq("status", "published")
     .eq("folder_id", folderId)
     .order("inserted_at", { ascending: false })
@@ -83,7 +99,14 @@ export const getDrafts = async (
     .from("posts")
     .select(
       `
-      *,
+      id,
+      title,
+      folder_id,
+      inserted_at,
+      owner_id,
+      status,
+      story_id,
+      updated_at,
       post_links_from: post_links!post_links_from_post_fkey(to_post_id),
       post_links_to: post_links!post_links_to_post_fkey(from_post_id),
       profiles!inner(*), 

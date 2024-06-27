@@ -39,7 +39,7 @@ import MovePostForm from "./MovePostForm";
 export default function PostDropdownMenu({
   post,
 }: Readonly<{
-  post: Tables<"posts"> & {
+  post: Omit<Tables<"posts">, "content"> & {
     profiles: Tables<"profiles">;
     stories: Tables<"stories">;
     post_links_from: {

@@ -45,7 +45,7 @@ export default function MovePostForm({
   post,
   onClose,
 }: Readonly<{
-  post: Tables<"posts">;
+  post: Omit<Tables<"posts">, "content">;
   onClose: () => void;
 }>) {
   const supabase = createClient();

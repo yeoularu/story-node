@@ -54,7 +54,7 @@ export default function FolderTreeGraph() {
 
   function transformData(
     folders: Tables<"folders">[],
-    posts: Tables<"posts">[],
+    posts: Omit<Tables<"posts">, "content">[],
   ) {
     const folderMap = new Map<string, Tables<"folders">>();
     folders.forEach((folder) => folderMap.set(folder.id, folder));
@@ -264,7 +264,7 @@ export default function FolderTreeGraph() {
   const selectedFolder = story.folders.find(
     (folder) => folder.id === selectedNodeId,
   );
-  let selectedPost: Tables<"posts"> | undefined;
+  let selectedPost: Omit<Tables<"posts">, "content"> | undefined;
   if (!selectedFolder) {
     selectedPost =
       posts.find((post) => post.id === selectedNodeId) ??
