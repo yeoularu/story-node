@@ -62,7 +62,7 @@ export default function PostsGraph() {
     const nodes = data as FDGNode[];
 
     const svgWidth = width > 1400 ? 1400 : width;
-    const svgHeight = height - 250;
+    const svgHeight = height - 275;
 
     const simulation = d3
       .forceSimulation(nodes)
