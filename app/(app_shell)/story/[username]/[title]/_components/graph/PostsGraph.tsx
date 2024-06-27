@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import * as d3 from "d3";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
-import { File, FilePen, Folder, Loader2, X } from "lucide-react";
+import { File, FilePen, Loader2, X } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -18,14 +18,10 @@ import { useWindowSize } from "usehooks-ts";
 
 dayjs.extend(localizedFormat);
 
-interface TreeNode extends d3.SimulationNodeDatum {
-  id: string;
-  type: "folder" | "post";
-  name: string;
-  children?: TreeNode[];
-}
+type FDGNode = d3.SimulationNodeDatum & Omit<Tables<"posts">, "content">;
+type FDGLink = d3.SimulationLinkDatum<FDGNode>;
 
-export default function FolderTreeGraph() {
+export default function PostsGraph() {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const supabase = createClient();
 
@@ -52,58 +48,18 @@ export default function FolderTreeGraph() {
 
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
-  function transformData(
-    folders: Tables<"folders">[],
-    posts: Omit<Tables<"posts">, "content">[],
-  ) {
-    const folderMap = new Map<string, Tables<"folders">>();
-    folders.forEach((folder) => folderMap.set(folder.id, folder));
-
-    const buildTree = (folderId: string) => {
-      const folder = folderMap.get(folderId)!;
-      const node: TreeNode = {
-        id: folder.id,
-        type: "folder",
-        name: folder.name,
-      };
-
-      const children = folders.filter((f) => f.parent_id === folderId);
-      if (children.length > 0) {
-        node.children = children.map((child) => buildTree(child.id));
-      }
-
-      const folderPosts = posts.filter((post) => post.folder_id === folderId);
-      if (folderPosts.length > 0) {
-        if (!node.children) node.children = [];
-        node.children.push(
-          ...folderPosts.map((post) => ({
-            id: post.id,
-            type: "post" as const,
-            name: post.title ?? `${dayjs(post.inserted_at).format("ll")}`,
-          })),
-        );
-      }
-
-      return node;
-    };
-
-    const rootFolder = folders.find((folder) => folder.parent_id === null);
-    if (!rootFolder) throw new Error("Root folder not found");
-
-    return buildTree(rootFolder.id);
-  }
-
   useEffect(() => {
     if (!story || !posts) return;
     if (!drafts) return;
-
-    const data = drafts
-      ? transformData(story.folders, [...posts, ...drafts])
-      : transformData(story.folders, posts);
-
-    const root = d3.hierarchy(data);
-    const links = root.links();
-    const nodes = root.descendants();
+    const data = [...posts, ...drafts];
+    const dataSet = new Set(data.map((d) => d.id));
+    const links = story.post_links
+      .filter((l) => dataSet.has(l.from_post_id) && dataSet.has(l.to_post_id))
+      .map((d) => ({
+        source: d.from_post_id,
+        target: d.to_post_id,
+      }));
+    const nodes = data as FDGNode[];
 
     const svgWidth = width > 1400 ? 1400 : width;
     const svgHeight = height - 250;
@@ -112,12 +68,10 @@ export default function FolderTreeGraph() {
       .forceSimulation(nodes)
       .force(
         "link",
-        d3
-          .forceLink<
-            d3.HierarchyNode<TreeNode>,
-            d3.HierarchyLink<TreeNode>
-          >(links)
-          .id((d) => d.id!),
+        d3.forceLink<FDGNode, FDGLink>(links).id((d) => {
+          console.log(d);
+          return d.id;
+        }),
       )
       .force("charge", d3.forceManyBody().strength(-300))
       .force("x", d3.forceX())
@@ -144,55 +98,49 @@ export default function FolderTreeGraph() {
 
     const node = nodeGroup
       .append("circle")
-      .attr("stroke-width", (d) => (d.data.type === "folder" ? 2 : 0))
-      .attr("r", (d) => (d.data.type === "folder" ? 8 : 7))
-      .attr("class", (d) =>
-        d.data.type === "folder"
-          ? "fill-background stroke-foreground"
-          : "fill-foreground stroke-none",
-      )
+      .attr("stroke-width", 0)
+      .attr("r", 7)
+      .attr("class", "fill-foreground stroke-none")
       .attr("cursor", "pointer");
 
     nodeGroup
       .append("text")
       .attr("dy", 20)
       .attr("text-anchor", "middle")
-      .text((d) => d.data.name)
+      .text((d) => d.title ?? ``)
       .attr("font-size", "11px")
       .attr("fill", "currentColor")
       .style("pointer-events", "none");
 
-    node.append("title").text((d) => d.data.name);
+    node.append("title").text((d) => d.title);
 
     simulation.on("tick", () => {
       link
-        .attr("x1", (d) => d.source.x!)
-        .attr("y1", (d) => d.source.y!)
-        .attr("x2", (d) => d.target.x!)
-        .attr("y2", (d) => d.target.y!);
+        .attr("x1", (d) => (d.source as unknown as FDGNode).x!)
+        .attr("y1", (d) => (d.source as unknown as FDGNode).y!)
+        .attr("x2", (d) => (d.target as unknown as FDGNode).x!)
+        .attr("y2", (d) => (d.target as unknown as FDGNode).y!);
 
       nodeGroup.attr("transform", (d) => `translate(${d.x!},${d.y!})`);
     });
 
     function drag(
-      simulation: d3.Simulation<d3.HierarchyNode<TreeNode>, undefined>,
+      simulation: d3.Simulation<d3.HierarchyNode<FDGNode>, undefined>,
     ) {
       function dragstarted(
-        event: d3.D3DragEvent<SVGGElement, TreeNode, TreeNode>,
+        event: d3.D3DragEvent<SVGGElement, FDGNode, FDGNode>,
       ) {
         if (!event.active) simulation.alphaTarget(0.3).restart();
         event.subject.fx = event.subject.x;
         event.subject.fy = event.subject.y;
       }
 
-      function dragged(event: d3.D3DragEvent<SVGGElement, TreeNode, TreeNode>) {
+      function dragged(event: d3.D3DragEvent<SVGGElement, FDGNode, FDGNode>) {
         event.subject.fx = event.x;
         event.subject.fy = event.y;
       }
 
-      function dragended(
-        event: d3.D3DragEvent<SVGGElement, TreeNode, TreeNode>,
-      ) {
+      function dragended(event: d3.D3DragEvent<SVGGElement, FDGNode, FDGNode>) {
         if (!event.active) simulation.alphaTarget(0);
         event.subject.fx = null;
         event.subject.fy = null;
@@ -207,7 +155,7 @@ export default function FolderTreeGraph() {
 
     // @ts-ignore
     nodeGroup.call(drag(simulation)).on("click", (_, d) => {
-      setSelectedNodeId(d.data.id);
+      setSelectedNodeId(d.id);
     });
 
     const zoom = d3
@@ -235,23 +183,17 @@ export default function FolderTreeGraph() {
 
     node.attr("class", (d: any) => {
       let classname: string;
-      if (d.data.id === selectedNodeId) {
-        classname =
-          d.data.type === "folder"
-            ? "fill-primary stroke-foreground/80"
-            : "fill-primary stroke-background";
+      if (d.id === selectedNodeId) {
+        classname = "fill-primary stroke-background";
       } else {
-        classname =
-          d.data.type === "folder"
-            ? "fill-background stroke-foreground"
-            : "fill-foreground stroke-background";
+        classname = "fill-foreground stroke-background";
       }
       return classname;
     });
 
     link.attr("class", (link: any) => {
-      return link.source.data.id === selectedNodeId ||
-        link.target.data.id === selectedNodeId
+      return link.source.id === selectedNodeId ||
+        link.target.id === selectedNodeId
         ? "stroke-primary"
         : "stroke-muted-foreground";
     });
@@ -260,43 +202,31 @@ export default function FolderTreeGraph() {
   if (isPending) return <Loader2 className="mx-auto h-8 w-8 animate-spin" />;
   if (!story || !posts) return null;
 
-  const selectedFolder = story.folders.find(
-    (folder) => folder.id === selectedNodeId,
-  );
-  let selectedPost: Omit<Tables<"posts">, "content"> | undefined;
-  if (!selectedFolder) {
-    selectedPost =
-      posts.find((post) => post.id === selectedNodeId) ??
-      drafts?.find((post) => post.id === selectedNodeId);
-  }
   const getIcon = () => {
-    if (selectedFolder) return <Folder className="h-4 w-4" />;
     if (selectedPost?.status === "published")
       return <File className="h-4 w-4" />;
     return <FilePen className="h-4 w-4" />;
   };
-
+  const selectedPost =
+    posts.find((post) => post.id === selectedNodeId) ??
+    drafts?.find((post) => post.id === selectedNodeId);
   const getTitle = () => {
-    if (selectedFolder) return selectedFolder.name;
     if (selectedPost?.status === "published") return selectedPost.title;
     return `Untitled draft (Created at ${dayjs(selectedPost?.inserted_at).format("lll")})`;
   };
 
   const getButtonText = () => {
-    if (selectedFolder) return "Go to folder";
     if (selectedPost?.status === "published") return "Read post";
     return "Edit draft";
   };
 
   const getLink = () => {
-    if (selectedFolder) {
-      return `${window.location.pathname}?tab=folders&folder_id=${selectedFolder.id}`;
-    }
     if (selectedPost?.status === "published") {
       return `/post/${selectedPost.folder_id}?title=${selectedPost.title}`;
     }
     return `/compose/post/${selectedNodeId}`;
   };
+
   return (
     <div className="relative">
       {selectedNodeId && (

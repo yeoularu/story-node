@@ -5,6 +5,7 @@ import { Files, FoldersIcon, TreePine, Waypoints } from "lucide-react";
 import { useQueryState } from "nuqs";
 import { useMediaQuery } from "usehooks-ts";
 import Folders from "./folder/Folders";
+import PostsGraph from "./graph/PostsGraph";
 import Posts from "./post/Posts";
 import FolderTreeGraph from "./tree/FolderTreeGraph";
 
@@ -54,7 +55,12 @@ export default function StoryTab() {
       >
         <FolderTreeGraph />
       </TabsContent>
-      <TabsContent value="graph">graph</TabsContent>
+      <TabsContent
+        value="graph"
+        className={`flex flex-1 flex-col ${tab !== "graph" && "hidden"}`}
+      >
+        <PostsGraph />
+      </TabsContent>
     </Tabs>
   );
 }
