@@ -27,8 +27,8 @@ export default function PostCard({
   content: React.ReactNode;
 }>) {
   const cardLink =
-    post.status === "published"
-      ? `/post/${post.folder_id}?title=${post.title}`
+    post.status === "published" && post.title
+      ? `/post/${post.folder_id}?title=${encodeURIComponent(post.title)}`
       : `/compose/post/${post.id}`;
 
   return (

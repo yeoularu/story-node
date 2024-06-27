@@ -135,7 +135,8 @@ export default function UpdatePost({
           queryKey: postKeys.story(profile.username, stories.title),
         });
       }
-      router.replace(`/post/${folder_id}?title=${title}`);
+      title &&
+        router.replace(`/post/${folder_id}?title=${encodeURIComponent(title)}`);
     },
     onError: (e) => {
       if (e.message === "23505") return titleDuplicateError();

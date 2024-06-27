@@ -229,8 +229,8 @@ export default function PostsGraph() {
   };
 
   const getLink = () => {
-    if (selectedPost?.status === "published") {
-      return `/post/${selectedPost.folder_id}?title=${selectedPost.title}`;
+    if (selectedPost?.status === "published" && selectedPost.title) {
+      return `/post/${selectedPost.folder_id}?title=${encodeURIComponent(selectedPost.title)}`;
     }
     return `/compose/post/${selectedNodeId}`;
   };

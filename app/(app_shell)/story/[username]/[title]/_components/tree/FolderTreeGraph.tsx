@@ -300,8 +300,8 @@ export default function FolderTreeGraph() {
     if (selectedFolder) {
       return `${window.location.pathname}?tab=folders&folder_id=${selectedFolder.id}`;
     }
-    if (selectedPost?.status === "published") {
-      return `/post/${selectedPost.folder_id}?title=${selectedPost.title}`;
+    if (selectedPost?.status === "published" && selectedPost.title) {
+      return `/post/${selectedPost.folder_id}?title=${encodeURIComponent(selectedPost.title)}`;
     }
     return `/compose/post/${selectedNodeId}`;
   };
