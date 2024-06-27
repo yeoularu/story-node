@@ -73,7 +73,7 @@ export default function PostsGraph() {
           return d.id;
         }),
       )
-      .force("charge", d3.forceManyBody().strength(-300))
+      .force("charge", d3.forceManyBody().strength(-500))
       .force("x", d3.forceX())
       .force("y", d3.forceY());
 
@@ -103,13 +103,14 @@ export default function PostsGraph() {
       .attr("class", "fill-foreground stroke-none")
       .attr("cursor", "pointer");
 
-    nodeGroup
+    const nodeText = nodeGroup
       .append("text")
       .attr("dy", 20)
       .attr("text-anchor", "middle")
       .text((d) => d.title ?? ``)
       .attr("font-size", "11px")
       .attr("fill", "currentColor")
+      .attr("opacity", 0.8)
       .style("pointer-events", "none");
 
     node.append("title").text((d) => d.title);
@@ -163,6 +164,10 @@ export default function PostsGraph() {
       .scaleExtent([0.5, 4])
       .on("zoom", ({ transform }) => {
         g.attr("transform", transform);
+        nodeText
+          .attr("opacity", Math.min(0.8, transform.k - 0.5))
+          .attr("transform", `scale(${(1 + transform.k) / (2 * transform.k)})`)
+          .attr("dy", 20 * Math.pow(transform.k, 0.25));
       });
     // @ts-ignore
     svg.call(zoom);
