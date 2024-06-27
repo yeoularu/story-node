@@ -10,7 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import * as d3 from "d3";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
-import { File, FilePen, Loader2, X } from "lucide-react";
+import { File, FilePen, LoaderCircle, X } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -199,7 +199,10 @@ export default function PostsGraph() {
     });
   }, [selectedNodeId]);
 
-  if (isPending) return <Loader2 className="mx-auto h-8 w-8 animate-spin" />;
+  if (isPending)
+    return (
+      <LoaderCircle className="mx-auto h-8 w-8 animate-spin text-primary" />
+    );
   if (!story || !posts) return null;
 
   const getIcon = () => {

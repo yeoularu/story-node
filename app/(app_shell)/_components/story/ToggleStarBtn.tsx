@@ -7,7 +7,7 @@ import { getProfileById, profileKeys } from "@/queries/profile";
 import { getStarsByUserId, starKeys } from "@/queries/star";
 import { storyKeys } from "@/queries/story";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2, Star } from "lucide-react";
+import { LoaderCircle, Star } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -122,7 +122,7 @@ const StarBtn = ({
   if (isPending) {
     return (
       <Button variant="outline" size="sm" disabled>
-        <Loader2 className="mr-2 h-4 w-4 animate-spin text-muted-foreground" />
+        <LoaderCircle className="mr-2 h-4 w-4 animate-spin text-muted-foreground" />
       </Button>
     );
   }

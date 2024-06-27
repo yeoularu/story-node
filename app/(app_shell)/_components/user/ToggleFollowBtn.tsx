@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { followKeys, getFolloweeList } from "@/queries/follow";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Loader2 } from "lucide-react";
+import { LoaderCircle } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -96,7 +96,7 @@ const FollowBtn = ({
   if (isPending || isFollowing === undefined) {
     return (
       <Button variant="secondary" disabled>
-        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
         Follow
       </Button>
     );
