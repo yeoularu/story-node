@@ -52,7 +52,7 @@ export default function ProfileSettingTab({
         </TabsList>
       </div>
       <TabsContent value="account">
-        <AccountSettings userId={currentUser.id} />
+        <AccountSettings profile={profile} />
       </TabsContent>
     </Tabs>
   );

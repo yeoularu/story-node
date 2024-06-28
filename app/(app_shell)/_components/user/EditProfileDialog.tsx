@@ -26,21 +26,12 @@ import { Tables } from "@/lib/types/supabase";
 import { profileKeys } from "@/queries/profile";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const formSchema = z.object({
   name: z.string().transform((val) => val.trim()),
-  username: z
-    .string()
-    .regex(/^\S+$/, {
-      message: "Username must not contain spaces.",
-    })
-    .regex(/^[^@]*$/, {
-      message: "Username must not contain '@' characters.",
-    }),
   bio: z
     .string()
     .transform((val) => val.trim())
@@ -52,11 +43,10 @@ export function EditProfileDialog({
 }: Readonly<{ profile: Tables<"profiles"> }>) {
   const supabase = createClient();
   const queryClient = useQueryClient();
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const { mutate } = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from("profiles")
         .update({
           ...values,
@@ -66,35 +56,27 @@ export function EditProfileDialog({
         .single();
 
       if (error) throw Error(error.code);
-      return data;
     },
-    onSuccess: ({ username }) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: profileKeys.id(profile.id) });
       queryClient.invalidateQueries({
         queryKey: profileKeys.username(profile.username),
       });
-      router.replace(`/profile/${username}`);
+      setOpen(false);
     },
 
     onError: (e) => {
       if (e.message === "23505")
-        return form.setError("username", {
-          message: "Username already taken.",
+        form.setError("root", {
+          message: "Unknown error, please refresh and try again",
         });
-
-      form.setError("root", {
-        message: "Unknown error, please refresh and try again",
-      });
       console.error(e);
-
-      return;
     },
   });
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: profile.name,
-      username: profile.username,
       bio: profile.bio ?? undefined,
     },
   });
@@ -133,20 +115,7 @@ export function EditProfileDialog({
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Username</FormLabel>
-                  <FormControl>
-                    <Input placeholder="john_doe" {...field} />
-                  </FormControl>
-                  <FormDescription>Your unique username.</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+
             <FormField
               control={form.control}
               name="bio"
