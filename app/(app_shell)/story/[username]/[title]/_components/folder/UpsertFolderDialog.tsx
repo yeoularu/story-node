@@ -118,6 +118,11 @@ export function UpsertFolderDialog({
             "One of the folders in this location already uses this name.",
         });
 
+      if (e.message === "23514")
+        return form.setError("name", {
+          message: "A folder cannot be its own parent.",
+        });
+
       form.setError("root", {
         message: `Error occurred while ${folder ? "editing" : "creating"} folder. Please try again.`,
       });
@@ -234,6 +239,7 @@ export function UpsertFolderDialog({
                                   form.setValue("parent_id", value)
                                 }
                                 closePopover={() => setIsPopoverOpen(false)}
+                                excludeFolderId={folder?.id}
                               />
                             </CommandGroup>
                           </CommandList>
