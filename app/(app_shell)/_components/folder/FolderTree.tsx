@@ -22,8 +22,9 @@ export default function FolderTree({
   return (
     <>
       {folders.map((folder) => {
+        if (folder.id === excludeFolderId) return null;
+
         const currentPath = path ? `${path}/${folder.name}` : folder.name;
-        const isExcluded = !!excludeFolderId && folder.id === excludeFolderId;
         return (
           <Fragment key={folder.id}>
             <CommandListItem
@@ -33,8 +34,6 @@ export default function FolderTree({
                 setValue(folder.id);
                 closePopover();
               }}
-              disabled={isExcluded}
-              className={isExcluded ? "pointer-events-none opacity-50" : ""}
             >
               <span className="max-w-full whitespace-pre-wrap break-words">
                 {path !== "" && (
