@@ -69,7 +69,6 @@ export default function PostsGraph() {
       .force(
         "link",
         d3.forceLink<FDGNode, FDGLink>(links).id((d) => {
-          console.log(d);
           return d.id;
         }),
       )

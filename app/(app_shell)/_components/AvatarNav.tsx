@@ -46,7 +46,7 @@ export default function AvatarNav({
 
   return (
     <Sheet>
-      <SheetTrigger asChild>
+      <SheetTrigger>
         <Avatar>
           <AvatarImage src={avatar_url ?? undefined} />
           <AvatarFallback>{name.toUpperCase().at(0)}</AvatarFallback>
