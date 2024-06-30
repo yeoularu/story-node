@@ -25,6 +25,7 @@ import { Tables } from "@/lib/types/supabase";
 import { getPostsByStory, postKeys } from "@/queries/post";
 import { getStory, storyKeys } from "@/queries/story";
 import { useQuery } from "@tanstack/react-query";
+import dayjs from "dayjs";
 import { useAtomValue } from "jotai";
 import { useParams } from "next/navigation";
 import { useQueryState } from "nuqs";
@@ -73,9 +74,9 @@ export default function Folders() {
 
   if (!story || !posts) return null;
 
-  const selectedFolderPosts = posts.filter(
-    (post) => post.folder_id === selectedFolderId,
-  );
+  const selectedFolderPosts = posts
+    .filter((post) => post.folder_id === selectedFolderId)
+    .toSorted((a, b) => dayjs(a.inserted_at).diff(b.inserted_at));
 
   const folderHierarchyMap = new Map<string, Tables<"folders">[]>();
   story.folders.forEach((f) => {
