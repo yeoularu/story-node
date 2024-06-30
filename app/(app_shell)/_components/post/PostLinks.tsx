@@ -150,6 +150,12 @@ export function PostLinks({
     ...post.post_links_to.map(({ from_post_id }) => from_post_id),
   ].filter((id) => postPathsMap.has(id));
 
+  const postLinksSet = new Set(
+    story.post_links
+      .filter((pl) => pl.from_post_id === post.id || pl.to_post_id === post.id)
+      .flatMap((pl) => [pl.from_post_id, pl.to_post_id]),
+  );
+
   return (
     <>
       <div className="my-2 flex flex-wrap gap-2 px-2">
@@ -209,34 +215,45 @@ export function PostLinks({
               <CommandList>
                 <CommandEmpty>No results found.</CommandEmpty>
                 <CommandGroup>
-                  {story.posts.map((p) => (
-                    <CommandListItem
-                      key={p.id}
-                      value={
-                        postPathsMap.get(p.id)?.join("/") ??
-                        p.title ??
-                        `Untitled draft (Created at ${dayjs(p.inserted_at).format("lll")})`
-                      }
-                      onSelect={() => {
-                        createLink(p.id);
-                      }}
-                    >
-                      <p className="text-muted-foreground">
-                        {postPathsMap.get(p.id)?.map((v, i, array) => {
-                          if (i === array.length - 1)
-                            return (
-                              <span
-                                key={v}
-                                className="font-medium text-foreground"
-                              >
-                                {v}
-                              </span>
-                            );
-                          else return v + "/";
-                        })}
-                      </p>
-                    </CommandListItem>
-                  ))}
+                  {story.posts
+                    .map((p) => {
+                      if (p.id === post.id || postLinksSet.has(p.id))
+                        return null;
+
+                      return (
+                        <CommandListItem
+                          key={p.id}
+                          value={
+                            postPathsMap.get(p.id)?.join("/") ??
+                            p.title ??
+                            `Untitled draft (Created at ${dayjs(p.inserted_at).format("lll")})`
+                          }
+                          onSelect={() => {
+                            createLink(p.id);
+                          }}
+                        >
+                          <p className="text-muted-foreground">
+                            {postPathsMap.get(p.id)?.map((v, i, array) => {
+                              if (i === array.length - 1)
+                                return (
+                                  <span
+                                    key={v}
+                                    className="font-medium text-foreground"
+                                  >
+                                    {v}
+                                  </span>
+                                );
+                              else return v + "/";
+                            })}
+                          </p>
+                        </CommandListItem>
+                      );
+                    })
+                    .toSorted(
+                      (a, b) =>
+                        a?.props?.value.localeCompare(b?.props?.value ?? "") ??
+                        0,
+                    )}
                 </CommandGroup>
               </CommandList>
             </Command>
