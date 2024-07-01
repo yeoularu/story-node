@@ -170,9 +170,13 @@ export function PostLinks({
         {postLinks.map((postId) => {
           if (!postPathsMap.has(postId)) return null;
           const post = story.posts.find((p) => p.id === postId);
+          const linkHref =
+            post?.status === "published"
+              ? `/post/${post?.folder_id}?title=${post?.title}`
+              : `/compose/post/${post?.id}`;
           return (
             <div className="flex items-center" key={postId}>
-              <Link href={`/post/${post?.folder_id}?title=${post?.title}`}>
+              <Link href={linkHref}>
                 <Badge variant="secondary">
                   <span>
                     {postPathsMap.get(postId)?.map((v, i, array) => {

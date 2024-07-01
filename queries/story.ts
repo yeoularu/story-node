@@ -37,7 +37,7 @@ export const getStoryByIdForOwner = async (
   await supabase
     .from("stories")
     .select(
-      "*, profiles!stories_owner_id_fkey(*), stars(count), folders(*), posts(id, folder_id, title, inserted_at), post_links(*)",
+      "*, profiles!stories_owner_id_fkey(*), stars(count), folders(*), posts(id, folder_id, title, inserted_at, status), post_links(*)",
     )
     .eq("id", id)
     .single()

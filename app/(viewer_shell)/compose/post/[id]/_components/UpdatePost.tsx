@@ -22,6 +22,7 @@ import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { getPostById, postKeys } from "@/queries/post";
 import { getProfileById, profileKeys } from "@/queries/profile";
+import { storyKeys } from "@/queries/story";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { User } from "@supabase/supabase-js";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -115,15 +116,16 @@ export default function UpdatePost({
           status: "published",
         })
         .eq("id", postId)
-        .select("folder_id, title, stories(title)")
+        .select("story_id, folder_id, title, stories(title)")
         .single();
 
       if (error) throw new Error(error.code);
       return data;
     },
-    onSuccess: ({ folder_id, title, stories }) => {
+    onSuccess: ({ story_id, folder_id, title, stories }) => {
       queryClient.invalidateQueries({ queryKey: postKeys.id(postId) });
       queryClient.invalidateQueries({ queryKey: postKeys.drafts() });
+      queryClient.invalidateQueries({ queryKey: storyKeys.id(story_id) });
 
       title &&
         queryClient.invalidateQueries({
@@ -157,15 +159,16 @@ export default function UpdatePost({
           status: "draft",
         })
         .eq("id", postId)
-        .select("folder_id, title, stories(title)")
+        .select("story_id, folder_id, title, stories(title)")
         .single();
 
       if (error) throw new Error(error.code);
       return data;
     },
-    onSuccess: ({ folder_id, title, stories }) => {
+    onSuccess: ({ story_id, folder_id, title, stories }) => {
       queryClient.invalidateQueries({ queryKey: postKeys.id(postId) });
       queryClient.invalidateQueries({ queryKey: postKeys.drafts() });
+      queryClient.invalidateQueries({ queryKey: storyKeys.id(story_id) });
 
       title &&
         queryClient.invalidateQueries({
