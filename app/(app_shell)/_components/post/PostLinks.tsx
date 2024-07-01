@@ -24,7 +24,7 @@ import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { X } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 dayjs.extend(localizedFormat);
 
@@ -52,6 +52,21 @@ export function PostLinks({
     queryFn: () => getStoryByIdForOwner(supabase, post.story_id),
   });
 
+  const [postLinksSet, setPostLinksSet] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    if (story) {
+      const initialSet = new Set(
+        story.post_links
+          .filter(
+            (pl) => pl.from_post_id === post.id || pl.to_post_id === post.id,
+          )
+          .flatMap((pl) => [pl.from_post_id, pl.to_post_id]),
+      );
+      setPostLinksSet(initialSet);
+    }
+  }, [story, post.id]);
+
   const { mutate: createLink } = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase.from("post_links").insert({
@@ -64,6 +79,8 @@ export function PostLinks({
       return id;
     },
     onSuccess: (id) => {
+      setPostLinksSet((prevSet) => new Set(prevSet).add(id));
+
       queryClient.invalidateQueries({ queryKey: postKeys.id(post.id) });
       queryClient.invalidateQueries({ queryKey: postKeys.id(id) });
       queryClient.invalidateQueries({
@@ -94,6 +111,12 @@ export function PostLinks({
       return id;
     },
     onSuccess: (id) => {
+      setPostLinksSet((prevSet) => {
+        const newSet = new Set(prevSet);
+        newSet.delete(id);
+        return newSet;
+      });
+
       queryClient.invalidateQueries({ queryKey: postKeys.id(post.id) });
       queryClient.invalidateQueries({ queryKey: postKeys.id(id) });
       queryClient.invalidateQueries({
@@ -150,13 +173,6 @@ export function PostLinks({
     ...post.post_links_from.map(({ to_post_id }) => to_post_id),
     ...post.post_links_to.map(({ from_post_id }) => from_post_id),
   ].filter((id) => postPathsMap.has(id));
-
-  const postLinksSet = new Set(
-    story.post_links
-      .filter((pl) => pl.from_post_id === post.id || pl.to_post_id === post.id)
-      .flatMap((pl) => [pl.from_post_id, pl.to_post_id]),
-  );
-
   return (
     <>
       <div className="my-2 flex flex-wrap gap-2 px-2">
