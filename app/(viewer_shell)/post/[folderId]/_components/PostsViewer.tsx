@@ -63,7 +63,7 @@ export default function PostViewer({
   }, [initialTitle]);
 
   return (
-    <div className="container flex max-w-screen-xl flex-col transition-transform">
+    <div className="flex max-w-screen-xl flex-col transition-transform">
       <div className="mb-8 flex flex-col items-center justify-between gap-2 sm:flex-row">
         <Button
           className="w-full sm:w-fit"
