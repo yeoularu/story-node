@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import { folderKeys, getFolder } from "@/queries/folder";
@@ -62,7 +63,7 @@ export default function PostViewer({
   }, [initialTitle]);
 
   return (
-    <div className="container flex max-w-screen-xl flex-col transition-transform ">
+    <div className="container flex max-w-screen-xl flex-col transition-transform">
       <div className="mb-8 flex flex-col items-center justify-between gap-2 sm:flex-row">
         <Button
           className="w-full sm:w-fit"
@@ -94,9 +95,15 @@ export default function PostViewer({
         <InfiniteQueryTrigger fetchPage={fetchNextPage} />
       ) : (
         <>
-          <p className="my-4 text-center">
+          <p className="mt-4 text-center">
             You&apos;ve reached the end of this folder.
           </p>
+          <div className="my-4 flex flex-wrap items-center justify-center gap-2 text-center text-muted-foreground">
+            <Badge variant="outline" className="text-inherit">
+              Tip
+            </Badge>
+            Click on the title above to visit the linked posts.
+          </div>
           <Button
             className="mb-8 ml-auto w-full sm:w-fit"
             size="sm"

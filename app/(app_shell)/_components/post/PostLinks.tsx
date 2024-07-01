@@ -23,6 +23,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import { X } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 
 dayjs.extend(localizedFormat);
@@ -168,21 +169,24 @@ export function PostLinks({
         )}
         {postLinks.map((postId) => {
           if (!postPathsMap.has(postId)) return null;
+          const post = story.posts.find((p) => p.id === postId);
           return (
             <div className="flex items-center" key={postId}>
-              <Badge variant="secondary">
-                <span>
-                  {postPathsMap.get(postId)?.map((v, i, array) => {
-                    if (i === array.length - 1)
-                      return (
-                        <span key={v} className="font-medium text-foreground">
-                          {v}
-                        </span>
-                      );
-                    else return v + "/";
-                  })}
-                </span>
-              </Badge>
+              <Link href={`/post/${post?.folder_id}?title=${post?.title}`}>
+                <Badge variant="secondary">
+                  <span>
+                    {postPathsMap.get(postId)?.map((v, i, array) => {
+                      if (i === array.length - 1)
+                        return (
+                          <span key={v} className="font-medium text-foreground">
+                            {v}
+                          </span>
+                        );
+                      else return v + "/";
+                    })}
+                  </span>
+                </Badge>
+              </Link>
 
               {isOwner && (
                 <Button
