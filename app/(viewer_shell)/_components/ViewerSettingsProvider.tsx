@@ -27,7 +27,10 @@ export default function ViewerSettingsProvider({
     { font: "default", fontSize: "16", viewerTheme: theme ?? "system" },
   );
 
-  const userAgent = window.navigator.userAgent.toLowerCase();
+  const userAgent =
+    typeof window === "undefined"
+      ? ""
+      : window.navigator.userAgent.toLowerCase();
   const isSafari =
     userAgent.includes("safari") && !userAgent.includes("chrome");
 

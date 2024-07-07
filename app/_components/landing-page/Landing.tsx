@@ -45,7 +45,10 @@ export default function Landing() {
   const [viewerMaxWidth, setViewerMaxWidth] = useState("w-[320px]");
   const [viewerTitleOpacity, setViewerTitleOpacity] = useState("opacity-100");
 
-  const userAgent = window.navigator.userAgent.toLowerCase();
+  const userAgent =
+    typeof window === "undefined"
+      ? ""
+      : window.navigator.userAgent.toLowerCase();
   const isSafari =
     userAgent.includes("safari") && !userAgent.includes("chrome");
   const safariFantasyStyle =
