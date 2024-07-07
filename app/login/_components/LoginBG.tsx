@@ -9,8 +9,7 @@ export default function LoginBG() {
   const [isLoaded, setIsLoaded] = useState(false);
   if (typeof window !== "undefined") {
     const userAgent = window.navigator.userAgent.toLowerCase();
-    if (userAgent.includes("chrome") || userAgent.includes("edg"))
-      return <AnimatedBG />;
+    if (userAgent.includes("chrome")) return <AnimatedBG />;
   }
 
   return (

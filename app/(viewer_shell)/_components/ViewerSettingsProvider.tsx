@@ -1,7 +1,10 @@
 "use client";
 
+import { safariFantasyStyleAtom } from "@/atoms/safariFantasyStyle";
 import { User } from "@supabase/supabase-js";
+import { useSetAtom } from "jotai";
 import { useTheme } from "next-themes";
+import { useEffect } from "react";
 import { useIsClient, useLocalStorage } from "usehooks-ts";
 import {
   fontSizeVariants,
@@ -23,6 +26,18 @@ export default function ViewerSettingsProvider({
     "viewer-settings:" + (currentUser?.id ?? "unauthenticated"),
     { font: "default", fontSize: "16", viewerTheme: theme ?? "system" },
   );
+
+  const userAgent = window.navigator.userAgent.toLowerCase();
+  const isSafari =
+    userAgent.includes("safari") && !userAgent.includes("chrome");
+
+  const setSafariFantasyStyle = useSetAtom(safariFantasyStyleAtom);
+
+  useEffect(() => {
+    if (isSafari && font === "fantasy")
+      setSafariFantasyStyle("leading-[3] h-8");
+    else setSafariFantasyStyle("");
+  }, [isSafari, font, setSafariFantasyStyle]);
 
   return (
     <div

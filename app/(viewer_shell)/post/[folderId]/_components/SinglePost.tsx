@@ -1,12 +1,15 @@
 "use client";
 
 import { PostLinks } from "@/app/(app_shell)/_components/post/PostLinks";
+import { safariFantasyStyleAtom } from "@/atoms/safariFantasyStyle";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Tables } from "@/lib/types/supabase";
+import { cn } from "@/lib/utils";
+import { useAtomValue } from "jotai";
 import { useQueryState } from "nuqs";
 import { useIntersectionObserver } from "usehooks-ts";
 
@@ -25,7 +28,7 @@ export default function SinglePost({
   };
 }>) {
   const [_, setTitle] = useQueryState("title");
-
+  const safariFantasyStyle = useAtomValue(safariFantasyStyleAtom);
   const { ref } = useIntersectionObserver({
     onChange: (isIntersecting) => {
       if (isIntersecting) setTitle(post.title);
@@ -39,7 +42,10 @@ export default function SinglePost({
           <PopoverTrigger asChild>
             <div className="mx-auto w-fit max-w-full rounded-md p-1.5 transition-colors hover:cursor-pointer hover:bg-transparent/5 hover:text-inherit">
               <p
-                className={`line-clamp-1 whitespace-pre-wrap break-words text-center`}
+                className={cn(
+                  "line-clamp-1 whitespace-pre-wrap break-words text-center",
+                  safariFantasyStyle,
+                )}
               >
                 {post.title}
               </p>
@@ -53,7 +59,7 @@ export default function SinglePost({
           </PopoverContent>
         </Popover>
       </div>
-      <article className="whitespace-pre-wrap break-words bg-inherit px-0 sm:px-6">
+      <article className="whitespace-pre-wrap break-words bg-inherit px-0 pt-4 sm:px-6">
         {post.content}
       </article>
     </div>
