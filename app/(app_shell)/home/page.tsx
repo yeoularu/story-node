@@ -8,6 +8,10 @@ import {
 import HomeGridFeed from "./_components/HomeGridFeed";
 import HomeTab from "./_components/HomeTab";
 
+export const metadata = {
+  title: "Home | story-node",
+};
+
 export default async function HomePage() {
   const queryClient = new QueryClient();
   const supabase = createClient();

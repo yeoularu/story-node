@@ -1,7 +1,7 @@
 /* eslint-disable react/no-unescaped-entities */
 
 export const metadata = {
-  title: "Terms of Service",
+  title: "Terms of Service | story-node",
   description:
     "Read our Terms of Service to learn about your rights and obligations when using story-node.",
 };

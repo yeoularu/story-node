@@ -9,6 +9,10 @@ import {
 import { redirect } from "next/navigation";
 import UpdatePost from "./_components/UpdatePost";
 
+export const metadata = {
+  title: "Create post | story-node",
+};
+
 export default async function ComposePostPage({
   params,
 }: Readonly<{

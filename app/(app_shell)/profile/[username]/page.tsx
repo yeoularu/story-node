@@ -9,6 +9,21 @@ import {
 import Profile from "./_components/Profile";
 import ProfileTab from "./_components/ProfileTab";
 
+type Props = {
+  params: { username: string };
+};
+
+export async function generateMetadata({ params }: Props) {
+  const username = params.username;
+
+  return {
+    title: `@${username} | story-node`,
+    openGraph: {
+      title: `@${username} | story-node`,
+    },
+  };
+}
+
 export default async function ProfilePage({
   params,
 }: Readonly<{ params: { username: string } }>) {

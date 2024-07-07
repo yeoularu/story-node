@@ -3,6 +3,10 @@ import { redirect } from "next/navigation";
 import PageTitle from "../../_components/PageTitle";
 import { UpsertStoryForm } from "../../_components/story/UpsertStoryForm";
 
+export const metadata = {
+  title: "Create story | story-node",
+};
+
 export default async function ComposeStoryPage() {
   const supabase = createClient();
   const {

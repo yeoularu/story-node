@@ -10,6 +10,22 @@ import {
 import StoryHeader from "./_components/StoryHeader";
 import StoryTab from "./_components/StoryTab";
 
+type Props = {
+  searchParams: { [key: string]: string | string[] | undefined };
+};
+
+export async function generateMetadata({ searchParams }: Props) {
+  const username = searchParams.username;
+  const title = searchParams.title;
+
+  return {
+    title: `${title} by @${username} | story-node`,
+    openGraph: {
+      title: `${title} by @${username} | story-node`,
+    },
+  };
+}
+
 export default async function StoryPage({
   params,
 }: Readonly<{

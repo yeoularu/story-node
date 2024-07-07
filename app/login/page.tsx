@@ -1,6 +1,10 @@
 import LoginBG from "./_components/LoginBG";
 import LoginCard from "./_components/LoginCard";
 
+export const metadata = {
+  title: "Sign in | story-node",
+};
+
 export default async function Login({
   searchParams,
 }: Readonly<{

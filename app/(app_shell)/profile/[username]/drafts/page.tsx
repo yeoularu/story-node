@@ -10,6 +10,10 @@ import {
 import { redirect } from "next/navigation";
 import Drafts from "./_components/Drafts";
 
+export const metadata = {
+  title: "Drafts | story-node",
+};
+
 export default async function ProfileDraftsPage({
   params,
 }: Readonly<{ params: { username: string } }>) {

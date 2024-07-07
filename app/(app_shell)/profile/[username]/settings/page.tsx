@@ -9,6 +9,10 @@ import {
 import { redirect } from "next/navigation";
 import ProfileSettingsTab from "./_components/ProfileSettingsTab";
 
+export const metadata = {
+  title: "Settings | story-node",
+};
+
 export default async function SettingsPage({
   params,
 }: Readonly<{ params: { username: string } }>) {

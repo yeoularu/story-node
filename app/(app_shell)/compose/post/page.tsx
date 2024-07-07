@@ -9,6 +9,10 @@ import { redirect } from "next/navigation";
 import PageTitle from "../../_components/PageTitle";
 import CreatePostDraft from "../_components/CreatePostDraft";
 
+export const metadata = {
+  title: "Create post draft | story-node",
+};
+
 export default async function ComposePostPage() {
   const supabase = createClient();
   const queryClient = new QueryClient();

@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 export const metadata = {
-  title: "Privacy Policy",
+  title: "Privacy Policy | story-node",
   description:
     "Learn how we collect, use, and protect your information when you visit story-node.com or use our services.",
 };
