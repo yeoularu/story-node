@@ -12,6 +12,7 @@ import {
 } from "@/queries/post";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import InfiniteQueryTrigger from "./InfiniteQueryTrigger";
 import SinglePost from "./SinglePost";
@@ -24,6 +25,7 @@ export default function PostViewer({
   initialTitle: string;
 }>) {
   const supabase = createClient();
+  const router = useRouter();
 
   const { data: folder } = useQuery({
     queryKey: folderKeys.id(folderId),
@@ -61,6 +63,10 @@ export default function PostViewer({
     const el = document.getElementById(initialTitle);
     if (el) el.scrollIntoView();
   }, [initialTitle]);
+
+  if (data?.pages[0] === null) {
+    router.replace("/not-found");
+  }
 
   return (
     <div className="flex max-w-screen-xl flex-col transition-transform">

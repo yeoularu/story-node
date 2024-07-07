@@ -1,11 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { folderKeys, getFolder } from "@/queries/folder";
-import { getPostByTitle, getPostsByFolder, postKeys } from "@/queries/post";
+import { getPostByTitle, postKeys } from "@/queries/post";
 import {
   HydrationBoundary,
   QueryClient,
   dehydrate,
 } from "@tanstack/react-query";
+import { redirect } from "next/navigation";
 import PostViewer from "./_components/PostsViewer";
 
 type Props = {
@@ -28,21 +29,17 @@ export default async function PostPage({
   searchParams,
 }: Readonly<{
   params: { folderId: string };
-  searchParams: { title: string };
+  searchParams: { title: string | undefined };
 }>) {
   const supabase = createClient();
   const queryClient = new QueryClient();
-
-  const postsByFolderPromise = await queryClient.prefetchQuery({
-    queryKey: postKeys.folder(params.folderId),
-    queryFn: () => getPostsByFolder(supabase, params.folderId),
-  });
+  const title = searchParams.title;
+  if (!title) return redirect("/not-found");
 
   const infinitePostsByFolderPromise = await queryClient.prefetchInfiniteQuery({
     queryKey: postKeys.infiniteByFolder(params.folderId),
-    queryFn: () =>
-      getPostByTitle(supabase, params.folderId, searchParams.title),
-    initialPageParam: ["initialTitle", searchParams.title],
+    queryFn: () => getPostByTitle(supabase, params.folderId, title),
+    initialPageParam: ["initialTitle", title],
   });
 
   const folderPromise = await queryClient.prefetchQuery({
@@ -50,19 +47,12 @@ export default async function PostPage({
     queryFn: () => getFolder(supabase, params.folderId),
   });
 
-  await Promise.all([
-    postsByFolderPromise,
-    infinitePostsByFolderPromise,
-    folderPromise,
-  ]);
+  await Promise.all([infinitePostsByFolderPromise, folderPromise]);
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="container flex max-w-screen-xl flex-col">
-        <PostViewer
-          folderId={params.folderId}
-          initialTitle={searchParams.title}
-        />
+        <PostViewer folderId={params.folderId} initialTitle={title} />
       </div>
     </HydrationBoundary>
   );
