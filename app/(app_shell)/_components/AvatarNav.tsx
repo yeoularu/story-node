@@ -87,7 +87,7 @@ export default function AvatarNav({
 
             <SheetTrigger asChild>
               <Button variant="menu" asChild>
-                <Link href={`/profile/${username}/drafts`}>
+                <Link href={`/drafts`}>
                   <FilePenLine className="mr-2 h-4 w-4 text-muted-foreground" />
                   Your drafts
                 </Link>

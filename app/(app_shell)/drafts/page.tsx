@@ -14,19 +14,17 @@ export const metadata = {
   title: "Drafts | story-node",
 };
 
-export default async function ProfileDraftsPage({
-  params,
-}: Readonly<{ params: { username: string } }>) {
+export default async function ProfileDraftsPage() {
   const queryClient = new QueryClient();
 
   const supabase = createClient();
-  const username = decodeURIComponent(params.username);
+
   const {
     data: { user: currentUser },
   } = await supabase.auth.getUser();
 
   if (!currentUser) {
-    redirect("/login?next=/profile/" + username + "/drafts");
+    redirect("/login?next=/drafts");
   }
 
   const promises = [
