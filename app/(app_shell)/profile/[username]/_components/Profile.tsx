@@ -15,6 +15,7 @@ import { getProfileByUsername, profileKeys } from "@/queries/profile";
 import { User } from "@supabase/supabase-js";
 import { useQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
+import FollowingDialog from "./FollowingDialog";
 
 export default function Profile({
   currentUser,
@@ -77,6 +78,7 @@ export default function Profile({
           </CardDescription>
         )}
       </CardHeader>
+      {isCurrentUserProfile && <FollowingDialog currentUserId={id} />}
     </Card>
   );
 }

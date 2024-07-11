@@ -22,6 +22,7 @@ import {
   Settings,
   Star,
   User as UserIcon,
+  UsersRound,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -96,6 +97,15 @@ export default function AvatarNav({
 
             <SheetTrigger asChild>
               <Button variant="menu" asChild>
+                <Link href={`/profile/${username}?following=open`}>
+                  <UsersRound className="mr-2 h-4 w-4 text-muted-foreground" />
+                  Your following
+                </Link>
+              </Button>
+            </SheetTrigger>
+
+            <SheetTrigger asChild>
+              <Button variant="menu" asChild>
                 <Link href={`/profile/${username}?tab=stars`}>
                   <Star className="mr-2 h-4 w-4 text-muted-foreground" />
                   Your stars
@@ -104,6 +114,7 @@ export default function AvatarNav({
             </SheetTrigger>
 
             <Separator />
+
             <SheetTrigger asChild>
               <Button variant="menu" asChild>
                 <Link href={`/profile/${username}/settings`}>
@@ -112,6 +123,7 @@ export default function AvatarNav({
                 </Link>
               </Button>
             </SheetTrigger>
+
             <Separator />
 
             <Button variant="menu" onClick={signOut}>

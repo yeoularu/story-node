@@ -42,9 +42,9 @@ const FollowBtn = ({
     },
   });
 
-  const isFollowing = followeeList?.some(
-    ({ followee_id }) => followee_id === toUserId,
-  );
+  const isFollowing =
+    followeeList &&
+    followeeList.some(({ followee_id }) => followee_id === toUserId);
 
   const { mutate: follow } = useMutation({
     mutationFn: async () => {
@@ -93,7 +93,7 @@ const FollowBtn = ({
     },
   });
 
-  if (isPending || isFollowing === undefined) {
+  if (isPending) {
     return (
       <Button variant="secondary" disabled>
         <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />

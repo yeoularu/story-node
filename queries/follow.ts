@@ -17,6 +17,6 @@ export const getFolloweeList = async (
 ) =>
   await supabase
     .from("follows")
-    .select("followee_id")
+    .select("followee_id, profiles!followee_id_fkey(*)")
     .eq("follower_id", fromUserId)
     .then(({ data }) => data);
