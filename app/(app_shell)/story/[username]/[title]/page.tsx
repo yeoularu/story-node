@@ -11,12 +11,12 @@ import StoryHeader from "./_components/StoryHeader";
 import StoryTab from "./_components/StoryTab";
 
 type Props = {
-  searchParams: { [key: string]: string | string[] | undefined };
+  params: { username: string; title: string };
 };
 
-export async function generateMetadata({ searchParams }: Props) {
-  const username = searchParams.username;
-  const title = searchParams.title;
+export async function generateMetadata({ params }: Props) {
+  const username = decodeURIComponent(params.username);
+  const title = decodeURIComponent(params.title);
 
   return {
     title: `${title} by @${username} | story-node`,
